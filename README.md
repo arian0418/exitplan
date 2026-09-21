@@ -2,6 +2,12 @@
 
 ExitPlan is a desktop planning application that works backward from a required return deadline and calculates the latest time a user can leave.
 
+## Why I Built This
+
+I wanted an easier way to plan outings when the most important time is when I need to be back, not when I need to arrive somewhere. Normal navigation tools are useful for getting to a destination, but I still had to work backward myself when I had a fixed return time.
+
+I built ExitPlan around a simple question: **If I need to be back by a certain time, when do I actually need to leave?** The app works backward from that deadline while accounting for activities, travel, parking or walking time, and a safety buffer.
+
 ## Main language
 **Java**
 
@@ -25,4 +31,4 @@ javac ExitPlan.java
 java ExitPlan
 ```
 
-This project is intentionally small enough to explain clearly while demonstrating object-oriented Java, event-driven GUI programming, collections, validation, and date/time logic.
+This project demonstrates object-oriented Java, event-driven GUI programming, collections, validation, and date/time logic.
