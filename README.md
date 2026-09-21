@@ -1,24 +1,28 @@
-# ExitPlan — Python Reverse Planner
+# ExitPlan — Java Reverse Planner
 
-ExitPlan plans an outing backward from a fixed return deadline. Instead of asking when you want to arrive somewhere, it asks when you **must be back** and calculates the latest safe leave time.
+ExitPlan is a desktop planning application that works backward from a required return deadline and calculates the latest time a user can leave.
 
-## Stack
-Python • Streamlit • pandas
+## Main language
+**Java**
+
+The app uses Java Swing for the desktop interface and Java's `java.time` API for date/time calculations. There is no JavaScript, Node.js, Python dependency, or external framework.
 
 ## Features
-- Fixed return date/time
-- Outbound and return travel
-- Parking/walking time
+- Required return date and time
+- Outbound and return travel time
+- Parking/walking allowance
 - Safety buffer
-- Multiple activities with editable durations
-- Automatic leave-by calculation
-- Reverse-planned timeline
-- Warning when the plan already requires leaving
+- Multiple editable activities
+- Reverse leave-by calculation
+- Generated timeline
+- Feasibility warning
 
-## Run on Windows
+## Run
+Requires a JDK.
+
 ```
-python -m pip install -r requirements.txt
-python -m streamlit run app.py
+javac ExitPlan.java
+java ExitPlan
 ```
 
-No JavaScript, Node.js, database, or build step is required.
+This project is intentionally small enough to explain clearly while demonstrating object-oriented Java, event-driven GUI programming, collections, validation, and date/time logic.
