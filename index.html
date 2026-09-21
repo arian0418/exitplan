@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="ExitPlan reverse outing planner">
+  <title>ExitPlan</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <div>
+        <p class="eyebrow">REVERSE OUTING PLANNER</p>
+        <h1>ExitPlan</h1>
+        <p class="subtitle">Start with when you need to be back. ExitPlan works backward to build the schedule.</p>
+      </div>
+      <div class="clock" id="clock"></div>
+    </header>
+
+    <section class="card planner">
+      <div class="section-heading">
+        <div><h2>Plan an outing</h2><p>Enter your deadline, travel time, and activities.</p></div>
+        <button id="exampleBtn" class="secondary">Load example</button>
+      </div>
+
+      <div class="grid">
+        <label>Must be back by
+          <input id="returnTime" type="datetime-local" required>
+        </label>
+        <label>Travel to first stop (minutes)
+          <input id="travelOut" type="number" min="0" value="20">
+        </label>
+        <label>Travel home (minutes)
+          <input id="travelHome" type="number" min="0" value="20">
+        </label>
+        <label>Parking / walking (minutes)
+          <input id="parking" type="number" min="0" value="10">
+        </label>
+        <label>Safety buffer (minutes)
+          <input id="buffer" type="number" min="0" value="15">
+        </label>
+      </div>
+
+      <div class="activities-head">
+        <div><h3>Activities</h3><p>Add stops in the order you plan to visit them.</p></div>
+        <button id="addActivity" class="secondary">+ Add activity</button>
+      </div>
+      <div id="activities"></div>
+
+      <button id="calculate" class="primary">Build reverse plan</button>
+      <p id="error" class="error"></p>
+    </section>
+
+    <section id="result" class="card result hidden">
+      <div class="result-top">
+        <div><p class="eyebrow">YOUR PLAN</p><h2 id="leaveBy"></h2></div>
+        <span id="feasibility" class="status"></span>
+      </div>
+      <div class="summary" id="summary"></div>
+      <div class="timeline" id="timeline"></div>
+    </section>
+
+    <section class="card saved">
+      <div class="section-heading"><div><h2>Saved plans</h2><p>Plans are stored in this browser.</p></div><button id="clearSaved" class="text-btn">Clear all</button></div>
+      <div id="savedPlans" class="saved-list"></div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
