@@ -22,9 +22,11 @@ The app uses Java Swing for the desktop interface and Java's `java.time` API for
 - Reverse leave-by calculation
 - Generated timeline
 - Feasibility warning
+- Input validation for edited dates, durations, and activity names
+- Dates shown in timeline rows so overnight outings stay clear
 
 ## Run
-Requires a JDK.
+Requires a JDK 17 or newer (the application uses Java records).
 
 ```
 javac ExitPlan.java
