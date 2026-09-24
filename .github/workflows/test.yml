@@ -11,5 +11,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - run: javac ExitPlan.java PlanCalculator.java PlanCalculatorTest.java
-      - run: java PlanCalculatorTest
+      - run: mkdir -p build && javac -encoding UTF-8 -Xlint:all -d build *.java
+      - run: |
+          for suite in PlanCalculatorTest PlanTimelineTest PlanFilesTest ActivityTableModelTest; do
+            java -cp build "$suite" || exit 1
+          done
+      - run: xvfb-run -a java -cp build ExitPlanGuiTest
