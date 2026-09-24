@@ -18,7 +18,7 @@ The app uses Java Swing for the desktop interface and Java's `java.time` API for
 - Outbound and return travel time
 - Parking/walking allowance
 - Safety buffer
-- Multiple editable activities
+- Multiple editable activities with travel time between consecutive stops
 - Reverse leave-by calculation
 - Generated timeline
 - Feasibility warning
@@ -29,8 +29,14 @@ The app uses Java Swing for the desktop interface and Java's `java.time` API for
 Requires a JDK 17 or newer (the application uses Java records).
 
 ```
-javac ExitPlan.java
+javac ExitPlan.java PlanCalculator.java
 java ExitPlan
 ```
 
 This project demonstrates object-oriented Java, event-driven GUI programming, collections, validation, and date/time logic.
+
+## Tests
+
+Run `javac ExitPlan.java PlanCalculator.java PlanCalculatorTest.java` and `java PlanCalculatorTest`. GitHub Actions runs these commands on each pull request.
+
+For each activity, enter the minutes of travel **to the next activity**. Set the last activity's travel to 0; the separate return travel setting covers the trip home. The timeline displays dates for overnight plans.
