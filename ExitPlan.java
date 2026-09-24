@@ -23,6 +23,7 @@ public class ExitPlan extends JFrame {
     public ExitPlan() {
         super("ExitPlan — Reverse Planner");
         setDefaultCloseOperation(EXIT_ON_CLOSE); setSize(920,680); setLocationRelativeTo(null);
+        returnTime.setValue(java.util.Date.from(Instant.now().plus(Duration.ofHours(3))));
         returnTime.setEditor(new JSpinner.DateEditor(returnTime,"MM/dd/yyyy hh:mm a"));
         activities.addRow(new Object[]{"Dinner",60,0});
         JPanel root=new JPanel(new BorderLayout(14,14)); root.setBorder(BorderFactory.createEmptyBorder(18,18,18,18));
@@ -44,7 +45,7 @@ public class ExitPlan extends JFrame {
         JButton calculate=new JButton("Calculate reverse plan");
         JPanel metrics=new JPanel(new GridLayout(1,2,10,10));metrics.add(metric("LEAVE BY",leaveBy));metrics.add(metric("TOTAL OUTING",totalTime));
         JPanel bottom=new JPanel(new BorderLayout(8,8));bottom.add(metrics,BorderLayout.NORTH);bottom.add(status,BorderLayout.CENTER);bottom.add(calculate,BorderLayout.SOUTH);root.add(bottom,BorderLayout.SOUTH);
-        calculate.addActionListener(e->calculate()); setContentPane(root);
+        calculate.addActionListener(e->calculate()); setContentPane(root); calculate();
     }
     private void addField(JPanel p,String name,JComponent c){p.add(new JLabel(name));p.add(c);}
     private JPanel metric(String name,JLabel value){JPanel p=new JPanel(new GridLayout(2,1));p.setBorder(BorderFactory.createEtchedBorder());JLabel n=new JLabel(name,SwingConstants.CENTER);value.setHorizontalAlignment(SwingConstants.CENTER);value.setFont(value.getFont().deriveFont(Font.BOLD,20f));p.add(n);p.add(value);return p;}
@@ -63,7 +64,7 @@ public class ExitPlan extends JFrame {
             for(int i=0;i<list.size();i++){PlanCalculator.Stop a=list.get(i);LocalDateTime end=cursor.plusMinutes(a.minutes());timeline.addRow(new Object[]{a.name(),cursor.format(fmt),end.format(fmt),a.minutes()+" min"});cursor=end;if(a.travelToNext()>0){LocalDateTime next=cursor.plusMinutes(a.travelToNext());timeline.addRow(new Object[]{"Travel to next",cursor.format(fmt),next.format(fmt),a.travelToNext()+" min"});cursor=next;}}
             timeline.addRow(new Object[]{"Head home",cursor.format(fmt),deadline.format(fmt),(park+back+safe)+" min incl. buffer"});
             status.setText(!leave.isAfter(LocalDateTime.now())?"⚠ This plan requires leaving now or earlier.":"✓ Plan is feasible based on the times entered.");
-        }catch(IllegalArgumentException | ParseException ex){JOptionPane.showMessageDialog(this,"Check the return date, travel times, and activities. " + ex.getMessage(),"Invalid input",JOptionPane.ERROR_MESSAGE);}
+        }catch(IllegalArgumentException | ParseException ex){timeline.setRowCount(0);leaveBy.setText("--");totalTime.setText("--");status.setText("Correct the inputs and calculate again.");JOptionPane.showMessageDialog(this,"Check the return date, travel times, and activities. " + ex.getMessage(),"Invalid input",JOptionPane.ERROR_MESSAGE);}
     }
     private void commitSpinner(JSpinner spinner) throws ParseException { spinner.commitEdit(); }
     public static void main(String[] args){SwingUtilities.invokeLater(()->new ExitPlan().setVisible(true));}
