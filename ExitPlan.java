@@ -3,6 +3,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class ExitPlan extends JFrame {
     private final JLabel leaveBy = new JLabel("--");
     private final JLabel totalTime = new JLabel("--");
     private final JLabel status = new JLabel("Add activities, then calculate your plan.");
+    private JTable activityTable;
 
     public ExitPlan() {
         super("ExitPlan — Reverse Planner");
@@ -31,7 +33,7 @@ public class ExitPlan extends JFrame {
         JPanel settings=new JPanel(new GridLayout(5,2,8,8));settings.setBorder(BorderFactory.createTitledBorder("Plan settings"));
         addField(settings,"Must be back by",returnTime);addField(settings,"Outbound travel (min)",outbound);addField(settings,"Return travel (min)",inbound);addField(settings,"Parking / walking each way",parking);addField(settings,"Safety buffer",buffer);
 
-        JTable activityTable=new JTable(activities); JPanel activityPanel=new JPanel(new BorderLayout(6,6));activityPanel.setBorder(BorderFactory.createTitledBorder("Activities"));activityPanel.add(new JScrollPane(activityTable),BorderLayout.CENTER);
+        activityTable=new JTable(activities); JPanel activityPanel=new JPanel(new BorderLayout(6,6));activityPanel.setBorder(BorderFactory.createTitledBorder("Activities"));activityPanel.add(new JScrollPane(activityTable),BorderLayout.CENTER);
         JButton add=new JButton("+ Add activity"); JButton remove=new JButton("Remove selected"); JPanel activityButtons=new JPanel(new FlowLayout(FlowLayout.LEFT));activityButtons.add(add);activityButtons.add(remove);activityPanel.add(activityButtons,BorderLayout.SOUTH);
         add.addActionListener(e->activities.addRow(new Object[]{"New activity",30}));
         remove.addActionListener(e->{int r=activityTable.getSelectedRow();if(r>=0&&activities.getRowCount()>1)activities.removeRow(r);});
@@ -48,18 +50,22 @@ public class ExitPlan extends JFrame {
     private JPanel metric(String name,JLabel value){JPanel p=new JPanel(new GridLayout(2,1));p.setBorder(BorderFactory.createEtchedBorder());JLabel n=new JLabel(name,SwingConstants.CENTER);value.setHorizontalAlignment(SwingConstants.CENTER);value.setFont(value.getFont().deriveFont(Font.BOLD,20f));p.add(n);p.add(value);return p;}
     private void calculate(){
         try{
+            if(activityTable.isEditing() && !activityTable.getCellEditor().stopCellEditing())
+                throw new IllegalArgumentException("Finish editing the activity first.");
+            commitSpinner(returnTime);commitSpinner(outbound);commitSpinner(inbound);commitSpinner(parking);commitSpinner(buffer);
             java.util.Date d=(java.util.Date)returnTime.getValue(); LocalDateTime deadline=LocalDateTime.ofInstant(d.toInstant(),ZoneId.systemDefault());
             int out=(Integer)outbound.getValue(), back=(Integer)inbound.getValue(), park=(Integer)parking.getValue(), safe=(Integer)buffer.getValue(), act=0;
             List<Activity> list=new ArrayList<>();
-            for(int i=0;i<activities.getRowCount();i++){String name=String.valueOf(activities.getValueAt(i,0));int mins=Integer.parseInt(String.valueOf(activities.getValueAt(i,1)));if(mins<0)throw new IllegalArgumentException();list.add(new Activity(name,mins));act+=mins;}
-            int total=out+back+park*2+safe+act; LocalDateTime leave=deadline.minusMinutes(total); DateTimeFormatter fmt=DateTimeFormatter.ofPattern("hh:mm a");
+            for(int i=0;i<activities.getRowCount();i++){String name=String.valueOf(activities.getValueAt(i,0));int mins=Integer.parseInt(String.valueOf(activities.getValueAt(i,1)).trim());if(name.trim().isEmpty() || mins<=0 || mins>1440)throw new IllegalArgumentException("Enter an activity name and duration between 1 and 1440 minutes.");list.add(new Activity(name.trim(),mins));act+=mins;}
+            int total=out+back+park*2+safe+act; LocalDateTime leave=deadline.minusMinutes(total); DateTimeFormatter fmt=DateTimeFormatter.ofPattern("MM/dd hh:mm a");
             leaveBy.setText(leave.format(fmt));totalTime.setText((total/60)+"h "+(total%60)+"m");timeline.setRowCount(0);
             LocalDateTime cursor=leave;timeline.addRow(new Object[]{"Leave",cursor.format(fmt),"—",out+" min travel"});cursor=cursor.plusMinutes(out+park);
             for(Activity a:list){LocalDateTime end=cursor.plusMinutes(a.minutes());timeline.addRow(new Object[]{a.name(),cursor.format(fmt),end.format(fmt),a.minutes()+" min"});cursor=end;}
             timeline.addRow(new Object[]{"Head home",cursor.format(fmt),deadline.format(fmt),(park+back+safe)+" min incl. buffer"});
-            status.setText(leave.isBefore(LocalDateTime.now())?"⚠ This plan requires leaving now or earlier.":"✓ Plan is feasible based on the times entered.");
-        }catch(Exception ex){JOptionPane.showMessageDialog(this,"Check activity names and minutes.","Invalid input",JOptionPane.ERROR_MESSAGE);}
+            status.setText(!leave.isAfter(LocalDateTime.now())?"⚠ This plan requires leaving now or earlier.":"✓ Plan is feasible based on the times entered.");
+        }catch(IllegalArgumentException | ParseException ex){JOptionPane.showMessageDialog(this,"Check the return date, travel times, and activities. " + ex.getMessage(),"Invalid input",JOptionPane.ERROR_MESSAGE);}
     }
+    private void commitSpinner(JSpinner spinner) throws ParseException { spinner.commitEdit(); }
     public static void main(String[] args){SwingUtilities.invokeLater(()->new ExitPlan().setVisible(true));}
     record Activity(String name,int minutes){}
 }
