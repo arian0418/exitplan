@@ -2,3 +2,7 @@
 Thumbs.db
 .vscode/
 .idea/
+
+build/
+*.class
+*.jar
