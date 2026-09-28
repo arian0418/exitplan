@@ -14,6 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
 
 /** Real Swing integration tests. Linux CI runs these with xvfb-run. */
@@ -113,7 +114,7 @@ public class ExitPlanGuiTest {
                 run("minimum-size layout keeps primary controls reachable", app -> {
                     app.setSize(app.getMinimumSize());
                     app.validate();
-                    for (String name : List.of("calculate", "save", "open", "addActivity", "copy", "timeline")) {
+                    for (String name : List.of("calculate", "save", "open", "addActivity", "copy")) {
                         Component component = named(app, name, Component.class);
                         TestSupport.check(component.getWidth() > 25 && component.getHeight() > 15, name + " collapsed");
                         var bounds = SwingUtilities.convertRectangle(component.getParent(), component.getBounds(), app.getContentPane());
@@ -121,6 +122,16 @@ public class ExitPlanGuiTest {
                             && bounds.x + bounds.width <= app.getContentPane().getWidth()
                             && bounds.y + bounds.height <= app.getContentPane().getHeight(), name + " is outside the viewport");
                     }
+                    JTable timeline = named(app, "timeline", JTable.class);
+                    JViewport viewport = (JViewport) SwingUtilities.getAncestorOfClass(JViewport.class, timeline);
+                    TestSupport.check(viewport != null && viewport.getView() == timeline, "timeline cannot scroll");
+                    TestSupport.check(viewport.getExtentSize().width > 25 && viewport.getExtentSize().height > 15,
+                        "timeline viewport collapsed");
+                    var visible = SwingUtilities.convertRectangle(viewport.getParent(), viewport.getBounds(), app.getContentPane());
+                    TestSupport.check(visible.x >= 0 && visible.y >= 0
+                        && visible.x + visible.width <= app.getContentPane().getWidth()
+                        && visible.y + visible.height <= app.getContentPane().getHeight(),
+                        "timeline viewport is outside the window");
                 });
                 run("save and load restore edited settings", app -> {
                     Path saved = directory.resolve("saved.exitplan");
