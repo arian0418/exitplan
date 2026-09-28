@@ -25,7 +25,7 @@ On Windows, use `mkdir build` instead of `mkdir -p build` if needed. A graphical
 ## Try it
 
 1. Start with **Dinner**, **Dinner + movie**, or **Errands** and click **Use example**.
-2. Set the return deadline in `YYYY-MM-DD HH:MM` format and adjust travel, parking/walking, and the safety buffer.
+2. Set the return deadline using a U.S. date and AM/PM time, such as `10/1/2026 12:30 AM`. Adjust travel, parking/walking, and the safety buffer.
 3. Double click an activity cell (or press F2) to edit it. Add, remove, or move stops up/down.
 4. Click **Calculate**. Inspect the departure time, countdown, and complete itinerary.
 5. Save an editable `.exitplan` file, copy the itinerary, or export it as UTF-8 text.
@@ -39,6 +39,7 @@ On Windows, use `mkdir build` instead of `mkdir -p build` if needed. A graphical
 - The last stop always has zero onward travel because return travel is a separate setting. Reordering can clear that value: review the travel estimates afterward.
 - Save and load with version checks, bounded file reads, shared validation, and replacement through a temporary file.
 - Past departure times produce a warning. Overnight plans retain their full dates.
+- Dates use month/day/year, and all displayed times use AM/PM. Existing `.exitplan` files still load.
 
 ## How the code fits together
 
