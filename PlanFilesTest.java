@@ -3,6 +3,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,15 +37,25 @@ public class PlanFilesTest {
             });
             TestSupport.run("itinerary exports every step with overnight dates", () -> {
                 String text = ItineraryFormatter.format(data);
-                TestSupport.check(text.contains("2026-09-30 20:45"), "departure missing");
-                TestSupport.check(text.contains("2026-10-01 00:20"), "home arrival missing");
-                TestSupport.check(text.contains("2026-10-01 00:30"), "deadline missing");
+                TestSupport.check(text.contains("9/30/2026 8:45 PM"), "departure missing");
+                TestSupport.check(text.contains("10/1/2026 12:20 AM"), "home arrival missing");
+                TestSupport.check(text.contains("10/1/2026 12:30 AM"), "deadline missing");
                 TestSupport.check(text.contains("Park & walk in") && text.contains("Walk back & depart"), "parking missing");
                 TestSupport.check(text.contains("Travel to Movie") && text.contains("Safety buffer"), "travel or buffer missing");
                 TestSupport.check(text.contains("Café / 映画") && text.contains("3h 45m"), "name or duration missing");
                 Path export = directory.resolve("itinerary.txt");
                 PlanFiles.exportItinerary(export, data);
                 TestSupport.equal(text, Files.readString(export, StandardCharsets.UTF_8));
+            });
+            TestSupport.run("US time distinguishes midnight and noon", () -> {
+                var formatter = ItineraryFormatter.DATE_TIME;
+                TestSupport.equal(DEADLINE, LocalDateTime.parse("10/1/2026 12:30 AM", formatter));
+                TestSupport.equal(LocalDateTime.of(2026, 10, 1, 12, 30),
+                    LocalDateTime.parse("10/1/2026 12:30 PM", formatter));
+                TestSupport.rejects(DateTimeParseException.class,
+                    () -> LocalDateTime.parse("10/1/2026 00:30 AM", formatter));
+                TestSupport.rejects(DateTimeParseException.class,
+                    () -> LocalDateTime.parse("2/30/2026 8:00 PM", formatter));
             });
             malformed(directory, "missing key", VALID.replace("outbound=20\n", ""));
             malformed(directory, "missing version", VALID.replace("version=1\n", ""));

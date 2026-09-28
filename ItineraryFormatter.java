@@ -1,8 +1,11 @@
 import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
+import java.util.Locale;
 
 /** One plain-text itinerary for both the clipboard and UTF-8 export. */
 public final class ItineraryFormatter {
-    public static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm");
+    public static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("M/d/uuuu h:mm a", Locale.US)
+        .withResolverStyle(ResolverStyle.STRICT);
 
     private ItineraryFormatter() { }
 

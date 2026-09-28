@@ -29,7 +29,7 @@ public class ExitPlanGuiTest {
         try {
             SwingUtilities.invokeAndWait(() -> {
                 run("initial results and read-only complete timeline", app -> {
-                    TestSupport.equal("20:45", label(app, "leaveTime").getText());
+                    TestSupport.equal("8:45 PM", label(app, "leaveTime").getText());
                     JTable timeline = named(app, "timeline", JTable.class);
                     TestSupport.equal(8, timeline.getRowCount());
                     for (int row = 0; row < timeline.getRowCount(); row++) {
@@ -45,7 +45,7 @@ public class ExitPlanGuiTest {
                     TestSupport.equal("—", label(app, "leaveTime").getText());
                     TestSupport.check(!button(app, "copy").isEnabled(), "stale copy remains enabled");
                     button(app, "calculate").doClick();
-                    TestSupport.equal("20:40", label(app, "leaveTime").getText());
+                    TestSupport.equal("8:40 PM", label(app, "leaveTime").getText());
                 });
                 run("typing an activity invalidates results before commit", app -> {
                     JTable activities = named(app, "activities", JTable.class);
@@ -53,7 +53,7 @@ public class ExitPlanGuiTest {
                     ((JTextField) activities.getEditorComponent()).setText("75");
                     TestSupport.equal(0, named(app, "timeline", JTable.class).getRowCount());
                     button(app, "calculate").doClick();
-                    TestSupport.equal("20:30", label(app, "leaveTime").getText());
+                    TestSupport.equal("8:30 PM", label(app, "leaveTime").getText());
                 });
                 run("invalid activity stays editable with a visible error", app -> {
                     JTable activities = named(app, "activities", JTable.class);
@@ -68,10 +68,10 @@ public class ExitPlanGuiTest {
                 });
                 run("invalid date and oversized settings cannot calculate", app -> {
                     JFormattedTextField deadline = named(app, "deadline", JFormattedTextField.class);
-                    deadline.setText("2026-02-30 10:00");
+                    deadline.setText("2/30/2026 10:00 AM");
                     button(app, "calculate").doClick();
                     TestSupport.equal(0, named(app, "timeline", JTable.class).getRowCount());
-                    deadline.setText("2026-10-01 00:30");
+                    deadline.setText("10/1/2026 12:30 AM");
                     JSpinner outbound = named(app, "outbound", JSpinner.class);
                     ((JSpinner.DefaultEditor) outbound.getEditor()).getTextField().setText("99999999999999");
                     button(app, "calculate").doClick();
@@ -109,7 +109,7 @@ public class ExitPlanGuiTest {
                 run("copy uses full current itinerary", app -> {
                     button(app, "copy").doClick();
                     String text = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-                    TestSupport.check(text.contains("2026-09-30 20:45") && text.contains("Safety buffer"), "clipboard itinerary incomplete");
+                    TestSupport.check(text.contains("9/30/2026 8:45 PM") && text.contains("Safety buffer"), "clipboard itinerary incomplete");
                 });
                 run("minimum-size layout keeps primary controls reachable", app -> {
                     app.setSize(app.getMinimumSize());
@@ -140,13 +140,13 @@ public class ExitPlanGuiTest {
                     named(app, "outbound", JSpinner.class).setValue(50);
                     app.loadPlan(saved);
                     TestSupport.equal(35, named(app, "outbound", JSpinner.class).getValue());
-                    TestSupport.equal("20:30", label(app, "leaveTime").getText());
+                    TestSupport.equal("8:30 PM", label(app, "leaveTime").getText());
                 });
                 run("failed load preserves the existing plan", app -> {
                     Path malformed = directory.resolve("bad.exitplan");
                     Files.writeString(malformed, "not a plan");
                     TestSupport.rejects(java.io.IOException.class, () -> app.loadPlan(malformed));
-                    TestSupport.equal("20:45", label(app, "leaveTime").getText());
+                    TestSupport.equal("8:45 PM", label(app, "leaveTime").getText());
                 });
             });
         } finally {

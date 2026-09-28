@@ -22,7 +22,6 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.ResolverStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
@@ -71,11 +70,10 @@ public class ExitPlan extends JFrame {
     private static final Color MUTED = new Color(86, 106, 123);
     private static final Color LINE = new Color(219, 228, 233);
     private static final Color ERROR = new Color(159, 49, 38);
-    private static final DateTimeFormatter INPUT_DATE = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm")
-        .withResolverStyle(ResolverStyle.STRICT);
-    private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("HH:mm");
-    private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("EEE, d MMM uuuu", Locale.ENGLISH);
-    private static final DateTimeFormatter SHORT_DAY = DateTimeFormatter.ofPattern("d MMM uuuu", Locale.ENGLISH);
+    private static final DateTimeFormatter INPUT_DATE = ItineraryFormatter.DATE_TIME;
+    private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("h:mm a", Locale.US);
+    private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("EEE, MMM d, uuuu", Locale.US);
+    private static final DateTimeFormatter SHORT_DAY = DateTimeFormatter.ofPattern("MMM d, uuuu", Locale.US);
 
     private final JFormattedTextField deadline = named(new JFormattedTextField(), "deadline");
     private final JSpinner outbound = minutesSpinner(20, PlanCalculator.MAX_TRAVEL_MINUTES, "outbound");
@@ -145,11 +143,11 @@ public class ExitPlan extends JFrame {
     }
 
     private void configureInputs() {
-        deadline.setColumns(17);
+        deadline.setColumns(22);
         deadline.setFocusLostBehavior(JFormattedTextField.PERSIST);
         deadline.setFont(font(14, Font.PLAIN));
-        deadline.setToolTipText("Local date and 24-hour time: YYYY-MM-DD HH:MM. For example, 2026-10-01 00:30.");
-        deadline.getAccessibleContext().setAccessibleName("Must be back by, date and 24-hour time");
+        deadline.setToolTipText("Month/day/year and time with AM or PM. For example, 10/1/2026 12:30 AM.");
+        deadline.getAccessibleContext().setAccessibleName("Must be back by, US date and time with AM or PM");
         deadline.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(LINE),
             BorderFactory.createEmptyBorder(7, 10, 7, 10)));
         styleTable(activityTable, 34);
@@ -266,7 +264,7 @@ public class ExitPlan extends JFrame {
         deadline.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         settings.add(deadline);
         settings.add(Box.createVerticalStrut(4));
-        settings.add(label("YYYY-MM-DD   HH:MM  ·  24-hour local time", 11, Font.PLAIN, MUTED));
+        settings.add(label("M/D/YYYY   H:MM AM/PM  ·  local time", 11, Font.PLAIN, MUTED));
         settings.add(Box.createVerticalStrut(13));
         JPanel allowances = new JPanel(new GridLayout(2, 2, 14, 10));
         allowances.setOpaque(false);
@@ -466,7 +464,7 @@ public class ExitPlan extends JFrame {
             returnBy = LocalDateTime.parse(deadline.getText().strip(), INPUT_DATE);
         } catch (java.time.DateTimeException invalid) {
             deadline.requestFocusInWindow();
-            throw new IllegalArgumentException("Enter a real return date and time as YYYY-MM-DD HH:MM (24-hour time).");
+            throw new IllegalArgumentException("Enter a real date and time, such as 10/1/2026 12:30 AM.");
         }
         return new PlanData(returnBy, readMinutes(outbound, "Outbound travel"), readMinutes(inbound, "Return travel"),
             readMinutes(parking, "Parking / walking"), readMinutes(buffer, "Safety buffer"), activities.stops());
